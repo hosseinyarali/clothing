@@ -60,7 +60,8 @@
               "buildTarget": "clothing-frontend:build:production"
             },
             "development": {
-              "buildTarget": "clothing-frontend:build:development"
+              "buildTarget": "clothing-frontend:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

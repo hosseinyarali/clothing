@@ -1,0 +1,63 @@
+<div class="admin-page" dir="rtl">
+  <header class="admin-head">
+    <h1>سفارش‌ها</h1>
+    <a routerLink="/admin" class="btn-ghost">← بازگشت به پنل</a>
+  </header>
+
+  <select class="filter" [ngModel]="filter()" (ngModelChange)="onFilterChange($event)">
+    <option value="">همه‌ی وضعیت‌ها</option>
+    @for (s of statuses; track s.value) {
+      <option [value]="s.value">{{ s.label }}</option>
+    }
+  </select>
+
+  @if (loading()) {
+    <p class="state">در حال بارگذاری...</p>
+  } @else if (error()) {
+    <div class="state error">
+      {{ error() }}
+      <button class="btn-ghost" (click)="load()">تلاش دوباره</button>
+    </div>
+  } @else if (orders().length === 0) {
+    <p class="state">سفارشی یافت نشد.</p>
+  } @else {
+    <div class="table-wrap">
+      <table class="order-table">
+        <thead>
+        <tr>
+          <th>شماره</th>
+          <th>مشتری</th>
+          <th>تاریخ</th>
+          <th>مبلغ</th>
+          <th>وضعیت</th>
+          <th>جزئیات</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (o of orders(); track o.id) {
+            <tr>
+              <td>#{{ o.id }}</td>
+              <td>{{ o.customerName || '—' }}</td>
+              <td>{{ o.createdAt | date: 'yyyy/MM/dd HH:mm' }}</td>
+              <td>{{ o.totalPrice | number }} تومان</td>
+              <td>
+                <select
+                  class="status"
+                  [ngClass]="o.status"
+                  [ngModel]="o.status"
+                  (ngModelChange)="changeStatus(o, $event)">
+                  @for (s of statuses; track s.value) {
+                    <option [value]="s.value">{{ s.label }}</option>
+                  }
+                </select>
+              </td>
+              <td>
+                <a [routerLink]="['/orders', o.id]" class="btn-sm">مشاهده</a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

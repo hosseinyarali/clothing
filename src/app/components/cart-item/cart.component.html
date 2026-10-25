@@ -1,0 +1,138 @@
+<div class="max-w-4xl mx-auto px-4 py-8" dir="rtl">
+
+  <h1 class="text-2xl font-bold mb-6">سبد خرید</h1>
+
+  @if (cart.items().length === 0) {
+
+    <!-- حالت خالی -->
+    <div class="text-center py-16">
+      <p class="text-gray-500 mb-4">سبد خرید شما خالی است.</p>
+      <a routerLink="/products"
+         class="inline-block bg-black text-white rounded-lg px-6 py-2 hover:bg-gray-800 transition">
+        مشاهده محصولات
+      </a>
+    </div>
+
+  } @else {
+
+    <!-- لیست آیتم‌ها -->
+    <div class="space-y-4">
+
+      @for (item of cart.items(); track item.variantId) {
+        <div class="flex gap-4 border rounded-xl p-4 items-center">
+
+          <!-- تصویر -->
+          <img
+            [src]="item.imageUrl || 'assets/images/placeholder.jpg'"
+            [alt]="item.name"
+            class="w-20 h-20 rounded-lg object-cover bg-gray-100 shrink-0" />
+
+          <!-- مشخصات -->
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-900 truncate">{{ item.name }}</p>
+
+            @if (item.size || item.color) {
+              <p class="text-sm text-gray-500 mt-1">
+                @if (item.size) { سایز: {{ item.size }} }
+                @if (item.size && item.color) { — }
+                @if (item.color) { رنگ: {{ item.color }} }
+              </p>
+            }
+
+            <p class="text-sm text-gray-700 mt-1">
+              {{ item.price | number }} تومان
+            </p>
+
+            <!-- هشدار موجودی -->
+            @if (item.quantity > item.maxStock) {
+              <p class="text-xs text-red-500 mt-1">
+                موجودی کافی نیست (حداکثر {{ item.maxStock }} عدد).
+              </p>
+            }
+          </div>
+
+          <!-- تعداد -->
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              (click)="cart.updateQuantity(item.variantId, item.quantity - 1)"
+              [disabled]="item.quantity <= 1"
+              class="w-8 h-8 rounded border flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50">
+              −
+            </button>
+
+            <span class="w-8 text-center">{{ item.quantity }}</span>
+
+            <button
+              type="button"
+              (click)="cart.updateQuantity(item.variantId, item.quantity + 1)"
+              [disabled]="item.quantity >= item.maxStock"
+              class="w-8 h-8 rounded border flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50">
+              +
+            </button>
+          </div>
+
+          <!-- جمع ردیف -->
+          <p class="font-bold w-28 text-left">
+            {{ (item.price * item.quantity) | number }} تومان
+          </p>
+
+          <!-- حذف -->
+          <button
+            type="button"
+            (click)="cart.remove(item.variantId)"
+            class="text-red-500 hover:text-red-700 text-sm shrink-0">
+            حذف
+          </button>
+
+        </div>
+      }
+
+    </div>
+
+    <!-- جمع کل -->
+    <div class="mt-8 border-t pt-4 space-y-2">
+      <div class="flex justify-between text-sm text-gray-600">
+        <span>تعداد اقلام</span>
+        <span>{{ cart.count() }} عدد</span>
+      </div>
+
+      <div class="flex justify-between text-sm text-gray-600">
+        <span>هزینه ارسال</span>
+        <span class="text-green-600">رایگان</span>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 border-t">
+        <p class="text-lg font-medium">مبلغ قابل پرداخت:</p>
+        <p class="text-xl font-bold">
+          {{ cart.total() | number }} تومان
+        </p>
+      </div>
+    </div>
+
+    <!-- دکمه‌ها -->
+    <div class="mt-6 flex gap-3">
+      <button
+        type="button"
+        (click)="cart.clear()"
+        class="px-4 py-2 border rounded-lg text-sm text-red-600 border-red-300 hover:bg-red-50 transition">
+        خالی کردن سبد
+      </button>
+
+      <a routerLink="/checkout"
+         [class.pointer-events-none]="!canCheckout()"
+         [class.opacity-40]="!canCheckout()"
+         class="flex-1 text-center bg-black text-white rounded-lg py-3 hover:bg-gray-800 transition">
+        ادامه و تسویه حساب
+      </a>
+    </div>
+
+    <!-- پیام خطا اگه سبد معتبر نیست -->
+    @if (!canCheckout()) {
+      <p class="text-sm text-red-500 mt-3 text-center">
+        برای ادامه، مشکل موجودی اقلام سبد را برطرف کنید.
+      </p>
+    }
+
+  }
+</div>

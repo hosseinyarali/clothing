@@ -1,0 +1,145 @@
+<div class="order-page" dir="rtl">
+
+  @if (loading()) {
+    <p class="center muted">در حال بارگذاری...</p>
+  } @else if (error()) {
+    <div class="alert">{{ error() }}</div>
+    <a routerLink="/products" class="btn-ghost">بازگشت به محصولات</a>
+  } @else if (order()) {
+
+    @if (success()) {
+      <div class="success-banner">
+        ✅ سفارش شما با موفقیت ثبت شد.
+        <span class="order-num">{{ order()!.orderNumber }}</span>
+      </div>
+    }
+
+    <!-- پیام پرداخت -->
+    @if (paymentError()) {
+      <div class="alert">{{ paymentError() }}</div>
+    }
+    @if (paymentSuccess()) {
+      <div class="success-banner">✅ پرداخت با موفقیت انجام شد.</div>
+    }
+
+    <!-- هدر سفارش -->
+    <div class="order-head">
+      <div>
+        <h1>سفارش {{ order()!.orderNumber }}</h1>
+        <p class="muted">
+          تاریخ ثبت:
+          {{ order()!.createdAt | date:'yyyy/MM/dd HH:mm' }}
+        </p>
+      </div>
+
+      <span class="status" [class]="statusClass(order()!.status)">
+        {{ statusLabel(order()!.status) }}
+      </span>
+    </div>
+
+    <!-- محصولات -->
+    <section class="card">
+      <h2>محصولات سفارش</h2>
+
+      <ul class="items">
+        @for (item of order()!.items; track item.id) {
+          <li>
+            <img
+              [src]="item.variantImageUrl || 'assets/images/placeholder.jpg'"
+              [alt]="item.productName" />
+
+            <div class="info">
+              <p class="name">{{ item.productName }}</p>
+
+              @if (item.variantSize || item.variantColor) {
+                <p class="meta">
+                  @if (item.variantSize) { سایز: {{ item.variantSize }} }
+                  @if (item.variantSize && item.variantColor) { — }
+                  @if (item.variantColor) { رنگ: {{ item.variantColor }} }
+                </p>
+              }
+
+              @if (item.variantSku) {
+                <p class="sku" dir="ltr">SKU: {{ item.variantSku }}</p>
+              }
+
+              <p class="meta">تعداد: {{ item.quantity }}</p>
+            </div>
+
+            <div class="price-col">
+              <p class="unit">{{ item.unitPrice | number }} × {{ item.quantity }}</p>
+              <p class="line">{{ item.lineTotal | number }} تومان</p>
+            </div>
+          </li>
+        }
+      </ul>
+
+      <div class="totals">
+        <div class="row total">
+          <span>مبلغ کل</span>
+          <span>{{ order()!.totalAmount | number }} تومان</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- آدرس و یادداشت -->
+    <div class="grid-2">
+      <section class="card">
+        <h2>آدرس ارسال</h2>
+        <dl class="info-list">
+          <div>
+            <dt>گیرنده</dt>
+            <dd>{{ order()!.shippingReceiverName || '—' }}</dd>
+          </div>
+          <div>
+            <dt>تلفن</dt>
+            <dd dir="ltr">{{ order()!.shippingReceiverPhone || '—' }}</dd>
+          </div>
+          <div>
+            <dt>استان / شهر</dt>
+            <dd>{{ order()!.shippingProvince || '—' }} / {{ order()!.shippingCity || '—' }}</dd>
+          </div>
+          <div>
+            <dt>آدرس</dt>
+            <dd>{{ order()!.shippingStreet || '—' }}</dd>
+          </div>
+          <div>
+            <dt>کد پستی</dt>
+            <dd dir="ltr">{{ order()!.shippingPostalCode || '—' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      @if (order()!.note) {
+        <section class="card">
+          <h2>یادداشت</h2>
+          <p class="note">{{ order()!.note }}</p>
+        </section>
+      }
+    </div>
+
+    <!-- اکشن‌ها -->
+    <div class="actions">
+      @if (canCancel()) {
+        <button type="button"
+                class="btn-danger"
+                [disabled]="canceling()"
+                (click)="cancel()">
+          {{ canceling() ? 'در حال لغو...' : 'لغو سفارش' }}
+        </button>
+      }
+
+      <a routerLink="/orders" class="btn-ghost">سفارش‌های من</a>
+
+      @if (canPay()) {
+        <button type="button"
+                class="btn-primary"
+                [disabled]="paying()"
+                (click)="payOrder()">
+          {{ paying() ? 'در حال انتقال به درگاه...' : 'پرداخت سفارش' }}
+        </button>
+      }
+    </div>
+
+  }
+</div>

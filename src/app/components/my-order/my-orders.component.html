@@ -1,0 +1,101 @@
+<div class="orders-page" dir="rtl">
+
+  <div class="page-head">
+    <div>
+      <h1>سفارش‌های من</h1>
+      <p class="muted">پیگیری و مشاهده‌ی سفارش‌ها</p>
+    </div>
+
+    <a routerLink="/products" class="btn-primary">پرداخت سفارش</a>
+  </div>
+
+  <div class="filter-tabs">
+    @for (tab of tabs; track tab.key) {
+      <button
+        type="button"
+        class="filter-tab"
+        [class.active]="activeFilter() === tab.key"
+        (click)="setFilter(tab.key)">
+        {{ tab.label }}
+        @if (countFor(tab.key) > 0) {
+          <span class="badge">{{ countFor(tab.key) }}</span>
+        }
+      </button>
+    }
+  </div>
+
+  @if (error()) {
+    <div class="alert">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="skeleton-list">
+      @for (i of [1,2,3]; track i) {
+        <div class="skeleton">
+          <div class="sk-line w-30"></div>
+          <div class="sk-line w-60"></div>
+          <div class="sk-line w-40"></div>
+        </div>
+      }
+    </div>
+  } @else if (filteredOrders().length === 0) {
+    <div class="empty">
+      <div class="empty-icon">📦</div>
+      <p>
+        @if (activeFilter() === 'ALL') {
+          هنوز سفارشی ثبت نکرده‌اید.
+        } @else {
+          سفارشی با این وضعیت وجود ندارد.
+        }
+      </p>
+      <a routerLink="/products" class="btn-primary">مشاهده محصولات</a>
+    </div>
+  } @else {
+    <div class="order-list">
+      @for (o of filteredOrders(); track o.id) {
+        <a [routerLink]="['/orders', o.id]" class="order-card">
+
+          <div class="order-head">
+            <div class="head-right">
+              <p class="order-number">{{ o.orderNumber }}</p>
+              <p class="order-date">
+                {{ o.createdAt | date:'yyyy/MM/dd HH:mm' }}
+              </p>
+            </div>
+
+            <span class="status" [class]="statusClass(o.status)">
+              {{ statusLabel(o.status) }}
+            </span>
+          </div>
+
+          <div class="thumbs">
+            @for (item of o.items.slice(0, 4); track item.id) {
+              <img
+                [src]="item.variantImageUrl || 'assets/images/placeholder.jpg'"
+                [alt]="item.productName"
+                loading="lazy" />
+            }
+            @if (o.items.length > 4) {
+              <span class="more">+{{ o.items.length - 4 }}</span>
+            }
+          </div>
+
+          <div class="order-foot">
+            <div class="foot-info">
+              <span>{{ itemCount(o) }} کالا</span>
+              <span class="dot">·</span>
+              <span>{{ o.items.length }} قلم</span>
+            </div>
+
+            <div class="foot-total">
+              <span class="label">مبلغ کل:</span>
+              <span class="amount">{{ o.totalAmount | number }} تومان</span>
+            </div>
+          </div>
+
+        </a>
+      }
+    </div>
+  }
+
+</div>

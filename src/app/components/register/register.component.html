@@ -1,0 +1,57 @@
+<div class="auth-wrapper">
+  <form class="auth-card" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <h2>ثبت‌نام</h2>
+
+    @if (errorMsg()) {
+      <div class="alert-error">{{ errorMsg() }}</div>
+    }
+
+    <div class="form-group">
+      <label>نام و نام خانوادگی</label>
+      <input type="text" formControlName="fullName" />
+      @if (f.fullName.touched && f.fullName.invalid) {
+        <small class="err">نام الزامی و حداقل ۳ کاراکتر است</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>ایمیل</label>
+      <input type="email" formControlName="email" />
+      @if (f.email.touched && f.email.invalid) {
+        <small class="err">ایمیل معتبر وارد کن</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>نام کاربری</label>
+      <input type="text" formControlName="username" autocomplete="username" />
+      @if (f.username.touched && f.username.invalid) {
+        <small class="err">نام کاربری الزامی و حداقل ۳ کاراکتر است</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>رمز عبور</label>
+      <input type="password" formControlName="password" autocomplete="new-password" />
+      @if (f.password.touched && f.password.invalid) {
+        <small class="err">رمز عبور حداقل ۶ کاراکتر</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label>تکرار رمز عبور</label>
+      <input type="password" formControlName="confirmPassword" autocomplete="new-password" />
+      @if (form.errors?.['mismatch'] && f.confirmPassword.touched) {
+        <small class="err">رمزها یکسان نیستند</small>
+      }
+    </div>
+
+    <button type="submit" [disabled]="loading()">
+      {{ loading() ? 'در حال ثبت‌نام...' : 'ثبت‌نام' }}
+    </button>
+
+    <p class="switch">
+      حساب داری؟ <a routerLink="/login">وارد شو</a>
+    </p>
+  </form>
+</div>

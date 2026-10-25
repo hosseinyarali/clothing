@@ -1,0 +1,41 @@
+.admin-page { max-width: 970px; margin: 40px auto; padding: 0 16px; }
+.admin-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+
+.btn-ghost, .btn-primary, .btn-sm {
+  padding: 8px 16px; border-radius: 8px; font-size: 14px; font-family: inherit;
+  cursor: pointer; text-decoration: none; border: 1px solid #ddd; background: #fff; color: #333;
+}
+.btn-ghost:hover, .btn-sm:hover { background: #f5f5f5; }
+.btn-primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+.btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+.btn-sm { padding: 4px 12px; font-size: 13px; }
+.btn-sm.danger { color: #dc2626; border-color: #fca5a5; }
+.btn-sm.danger:hover { background: #fef2f2; }
+
+.form-card {
+  background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.form-card h3 { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
+.form-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.form-row .input { flex: 1; min-width: 200px; }
+.form-error { color: #dc2626; font-size: 13px; margin: 8px 0 0; }
+
+.input {
+  padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; background: #fff;
+}
+.search { width: 100%; max-width: 320px; margin-bottom: 16px; box-sizing: border-box; }
+
+.table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.06); overflow-x: auto; }
+.category-table { width: 100%; border-collapse: collapse; }
+.category-table th, .category-table td {
+  padding: 12px 16px; text-align: right; border-bottom: 1px solid #f0f0f0;
+}
+.category-table th { color: #888; font-weight: 500; font-size: 13px; background: #fafafa; }
+.category-table tr:last-child td { border-bottom: none; }
+.category-table tbody tr:hover { background: #fafbff; }
+.category-table tr.editing { background: #eff6ff; }
+
+.actions { display: flex; gap: 6px; }
+.state { text-align: center; color: #888; padding: 40px 0; }
+.state.error { color: #dc2626; }

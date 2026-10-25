@@ -1,0 +1,64 @@
+<div class="admin-page" dir="rtl">
+  <header class="admin-head">
+    <h1>لیست محصولات</h1>
+    <div class="head-actions">
+      <a routerLink="/admin" class="btn-ghost">← بازگشت به پنل</a>
+      <a routerLink="/admin/products/new" class="btn-primary">+ افزودن محصول</a>
+    </div>
+  </header>
+
+  <input
+    class="search"
+    type="text"
+    placeholder="جستجوی نام محصول..."
+    [ngModel]="search()"
+    (ngModelChange)="search.set($event)"
+  />
+
+  @if (loading()) {
+    <p class="state">در حال بارگذاری...</p>
+  } @else if (error()) {
+    <div class="state error">
+      {{ error() }}
+      <button class="btn-ghost" (click)="load()">تلاش دوباره</button>
+    </div>
+  } @else if (filtered().length === 0) {
+    <p class="state">محصولی یافت نشد.</p>
+  } @else {
+    <div class="table-wrap">
+      <table class="product-table">
+        <thead>
+        <tr>
+          <th>تصویر</th>
+          <th>نام محصول</th>
+          <th>دسته‌بندی</th>
+          <th>قیمت</th>
+          <th>موجودی</th>
+          <th>عملیات</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (p of filtered(); track p.id) {
+            <tr>
+              <td>
+                @if (p.imageUrl) {
+                  <img [src]="p.imageUrl" [alt]="p.name" class="thumb" />
+                } @else {
+                  <div class="thumb placeholder">📦</div>
+                }
+              </td>
+              <td>{{ p.name }}</td>
+              <td>{{ p.categoryName || '—' }}</td>
+              <td>{{ p.price | number }} تومان</td>
+              <td>{{ totalStock(p) }}</td>
+              <td class="actions">
+                <a [routerLink]="['/admin/products', p.id, 'edit']" class="btn-sm">ویرایش</a>
+                <button class="btn-sm danger" (click)="remove(p)">حذف</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

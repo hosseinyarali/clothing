@@ -1,0 +1,73 @@
+<div class="admin-page" dir="rtl">
+  <header class="admin-head">
+    <h1>دسته‌بندی‌ها</h1>
+    <a routerLink="/admin" class="btn-ghost">← بازگشت به پنل</a>
+  </header>
+
+  <!-- فرم افزودن / ویرایش -->
+  <div class="form-card">
+    <h3>{{ editingId() === null ? 'افزودن دسته‌بندی جدید' : 'ویرایش دسته‌بندی' }}</h3>
+    <div class="form-row">
+      <input
+        type="text"
+        class="input"
+        placeholder="نام دسته‌بندی"
+        [ngModel]="formName()"
+        (ngModelChange)="formName.set($event)"
+        (keyup.enter)="save()"
+      />
+      <button class="btn-primary" (click)="save()" [disabled]="saving()">
+        {{ saving() ? 'در حال ذخیره...' : editingId() === null ? 'افزودن' : 'ذخیره' }}
+      </button>
+      @if (editingId() !== null) {
+        <button class="btn-ghost" (click)="cancelEdit()">انصراف</button>
+      }
+    </div>
+    @if (formError()) {
+      <p class="form-error">{{ formError() }}</p>
+    }
+  </div>
+
+  <input
+    class="input search"
+    type="text"
+    placeholder="جستجوی دسته‌بندی..."
+    [ngModel]="search()"
+    (ngModelChange)="search.set($event)"
+  />
+
+  @if (loading()) {
+    <p class="state">در حال بارگذاری...</p>
+  } @else if (error()) {
+    <div class="state error">
+      {{ error() }}
+      <button class="btn-ghost" (click)="load()">تلاش دوباره</button>
+    </div>
+  } @else if (filtered().length === 0) {
+    <p class="state">دسته‌بندی‌ای یافت نشد.</p>
+  } @else {
+    <div class="table-wrap">
+      <table class="category-table">
+        <thead>
+        <tr>
+          <th>شناسه</th>
+          <th>نام</th>
+          <th>عملیات</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (c of filtered(); track c.id) {
+            <tr [class.editing]="editingId() === c.id">
+              <td>#{{ c.id }}</td>
+              <td>{{ c.name }}</td>
+              <td class="actions">
+                <button class="btn-sm" (click)="startEdit(c)">ویرایش</button>
+                <button class="btn-sm danger" (click)="remove(c)">حذف</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

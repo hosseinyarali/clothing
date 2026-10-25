@@ -1,0 +1,162 @@
+<div class="checkout" dir="rtl">
+
+  <h1>تسویه حساب</h1>
+
+  @if (error()) {
+    <div class="alert">{{ error() }}</div>
+  }
+
+  <div class="checkout-grid">
+
+    <!-- ===== فرم آدرس ===== -->
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form-card">
+
+      <h2>اطلاعات ارسال</h2>
+
+      <!-- استان و شهر -->
+      <div class="row">
+        <div class="field">
+          <label>استان *</label>
+          <select
+            formControlName="provinceId"
+            (change)="onProvinceChange(f.provinceId.value)"
+            [class.invalid]="f.provinceId.touched && f.provinceId.invalid">
+            <option [ngValue]="null">
+              {{ loadingProvinces() ? 'در حال بارگذاری...' : '— انتخاب کنید —' }}
+            </option>
+            @for (p of provinces(); track p.id) {
+              <option [ngValue]="p.id">{{ p.name }}</option>
+            }
+          </select>
+          @if (f.provinceId.touched && f.provinceId.invalid) {
+            <small class="err">استان الزامی است.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>شهر *</label>
+          <select
+            formControlName="cityId"
+            [disabled]="!f.provinceId.value || loadingCities()"
+            [class.invalid]="f.cityId.touched && f.cityId.invalid">
+            <option [ngValue]="null">
+              {{ loadingCities() ? 'در حال بارگذاری...' : '— انتخاب کنید —' }}
+            </option>
+            @for (c of cities(); track c.id) {
+              <option [ngValue]="c.id">{{ c.name }}</option>
+            }
+          </select>
+          @if (f.cityId.touched && f.cityId.invalid) {
+            <small class="err">شهر الزامی است.</small>
+          }
+        </div>
+      </div>
+
+      <!-- آدرس -->
+      <div class="field">
+        <label>آدرس *</label>
+        <textarea formControlName="street" rows="3"
+                  [class.invalid]="f.street.touched && f.street.invalid"></textarea>
+        @if (f.street.touched && f.street.invalid) {
+          <small class="err">آدرس الزامی است.</small>
+        }
+      </div>
+
+      <!-- کد پستی و تلفن -->
+      <div class="row">
+        <div class="field">
+          <label>کد پستی *</label>
+          <input type="text" formControlName="postalCode" dir="ltr"
+                 placeholder="1234567890" maxlength="10"
+                 [class.invalid]="f.postalCode.touched && f.postalCode.invalid" />
+          @if (f.postalCode.touched && f.postalCode.errors?.['pattern']) {
+            <small class="err">کد پستی باید ۱۰ رقم باشد.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>شماره تماس گیرنده *</label>
+          <input type="text" formControlName="receiverPhone" dir="ltr"
+                 placeholder="09121234567" maxlength="11"
+                 [class.invalid]="f.receiverPhone.touched && f.receiverPhone.invalid" />
+          @if (f.receiverPhone.touched && f.receiverPhone.errors?.['pattern']) {
+            <small class="err">شماره باید با ۰۹ شروع و ۱۱ رقم باشد.</small>
+          }
+        </div>
+      </div>
+
+      <!-- نام گیرنده -->
+      <div class="field">
+        <label>نام گیرنده *</label>
+        <input type="text" formControlName="receiverName"
+               [class.invalid]="f.receiverName.touched && f.receiverName.invalid" />
+        @if (f.receiverName.touched && f.receiverName.invalid) {
+          <small class="err">نام گیرنده الزامی است.</small>
+        }
+      </div>
+
+      <!-- یادداشت -->
+      <div class="field">
+        <label>یادداشت (اختیاری)</label>
+        <textarea formControlName="note" rows="2"
+                  placeholder="مثلاً: لطفاً سریع ارسال شود."></textarea>
+      </div>
+
+      <button type="submit"
+              [disabled]="form.invalid || saving() || cart.items().length === 0"
+              class="btn-submit">
+        {{ saving() ? 'در حال ثبت...' : 'ثبت سفارش' }}
+      </button>
+
+    </form>
+
+    <!-- ===== خلاصه سبد ===== -->
+    <aside class="summary-card">
+      <h2>خلاصه سفارش</h2>
+
+      @if (cart.items().length === 0) {
+        <p class="muted">سبد خرید خالی است.</p>
+        <a routerLink="/products" class="btn-ghost">بازگشت به محصولات</a>
+      } @else {
+        <ul class="items">
+          @for (item of cart.items(); track item.variantId) {
+            <li>
+              <img [src]="item.imageUrl || 'assets/images/placeholder.jpg'"
+                   [alt]="item.name" />
+              <div class="info">
+                <p class="name">{{ item.name }}</p>
+                @if (item.size || item.color) {
+                  <p class="meta">
+                    @if (item.size) { سایز: {{ item.size }} }
+                    @if (item.size && item.color) { — }
+                    @if (item.color) { رنگ: {{ item.color }} }
+                  </p>
+                }
+                <p class="qty">تعداد: {{ item.quantity }}</p>
+              </div>
+              <p class="price">{{ (item.price * item.quantity) | number }}</p>
+            </li>
+          }
+        </ul>
+
+        <div class="totals">
+          <div class="row">
+            <span>جمع کالاها ({{ cart.count() }} عدد)</span>
+            <span>{{ cart.total() | number }} تومان</span>
+          </div>
+          <div class="row">
+            <span>هزینه ارسال</span>
+            <span class="text-green-600">رایگان</span>
+          </div>
+          <div class="row total">
+            <span>مبلغ قابل پرداخت</span>
+            <span>{{ cart.total() | number }} تومان</span>
+          </div>
+        </div>
+
+        <a routerLink="/cart" class="btn-ghost">ویرایش سبد</a>
+      }
+    </aside>
+
+  </div>
+</div>

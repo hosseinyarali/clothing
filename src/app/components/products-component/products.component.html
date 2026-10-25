@@ -1,0 +1,105 @@
+<div class="products-page" dir="rtl">
+
+  <!-- هدر -->
+  <div class="page-head">
+    <div>
+      <h1>محصولات</h1>
+      <p class="muted">{{ filtered().length }} محصول</p>
+    </div>
+  </div>
+
+  <!-- فیلترها -->
+  <div class="filters">
+
+    <!-- جستجو -->
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="جستجو در محصولات..."
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)" />
+      @if (search()) {
+        <button type="button" class="clear-btn" (click)="search.set('')">✕</button>
+      }
+    </div>
+
+    <!-- دسته‌بندی -->
+    <select
+      class="filter-select"
+      [ngModel]="selectedCategoryId()"
+      (ngModelChange)="selectedCategoryId.set($event)">
+      <option [ngValue]="null">همه دسته‌ها</option>
+      @for (c of categories(); track c.id) {
+        <option [ngValue]="c.id">{{ c.name }}</option>
+      }
+    </select>
+
+    <!-- مرتب‌سازی -->
+    <select
+      class="filter-select"
+      [ngModel]="sortKey()"
+      (ngModelChange)="sortKey.set($event)">
+      <option value="newest">جدیدترین</option>
+      <option value="price-asc">ارزان‌ترین</option>
+      <option value="price-desc">گران‌ترین</option>
+      <option value="name">نام (الفبا)</option>
+    </select>
+
+    @if (hasActiveFilter()) {
+      <button type="button" class="clear-all" (click)="clearFilters()">
+        حذف فیلترها
+      </button>
+    }
+  </div>
+
+  @if (error()) {
+    <div class="alert">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="product-grid">
+      @for (i of [1,2,3,4,5,6,7,8]; track i) {
+        <div class="skeleton">
+          <div class="sk-img"></div>
+          <div class="sk-line w-70"></div>
+          <div class="sk-line w-40"></div>
+        </div>
+      }
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="empty">
+      <div class="empty-icon">🔍</div>
+      <p>محصولی با این مشخصات پیدا نشد.</p>
+      @if (hasActiveFilter()) {
+        <button type="button" class="btn-primary" (click)="clearFilters()">
+          حذف فیلترها
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="product-grid">
+      @for (p of filtered(); track p.id) {
+        <a [routerLink]="['/products', p.id]" class="product-card">
+          <div class="product-img">
+            <img
+              [src]="p.imageUrl || 'assets/images/placeholder.jpg'"
+              [alt]="p.name"
+              loading="lazy" />
+          </div>
+
+          <div class="product-info">
+            @if (p.categoryName) {
+              <p class="cat">{{ p.categoryName }}</p>
+            }
+            <h3 class="name">{{ p.name }}</h3>
+            <p class="price">
+              {{ p.basePrice | number }}
+              <span>تومان</span>
+            </p>
+          </div>
+        </a>
+      }
+    </div>
+  }
+
+</div>

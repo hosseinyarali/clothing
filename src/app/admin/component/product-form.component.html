@@ -1,0 +1,112 @@
+<div class="page" dir="rtl">
+  <header class="page-head">
+    <h1>افزودن محصول جدید</h1>
+    <a routerLink="/" class="btn-ghost">بازگشت به فروشگاه</a>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+
+    <section class="card">
+      <h2>مشخصات محصول</h2>
+      <div class="grid">
+        <div class="field">
+          <label>نام محصول *</label>
+          <input formControlName="name" placeholder="مثلاً: تیشرت نخی مردانه" />
+          @if (submitted() && f.name.invalid) {
+            <small class="err">نام الزامی است (حداکثر ۱۰۰ کاراکتر)</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>دسته‌بندی *</label>
+          <select formControlName="categoryId">
+            <option [ngValue]="null">— انتخاب دسته —</option>
+            @for (c of categories(); track c.id) {
+              <option [ngValue]="c.id">{{ c.name }}</option>
+            }
+          </select>
+          @if (submitted() && f.categoryId.invalid) {
+            <small class="err">دسته‌بندی الزامی است</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>قیمت پایه (تومان) *</label>
+          <input type="number" formControlName="basePrice" min="0" />
+          @if (submitted() && f.basePrice.invalid) {
+            <small class="err">قیمت پایه الزامی است</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>آدرس تصویر</label>
+          <input formControlName="imageUrl" placeholder="https://... یا assets/..." />
+        </div>
+
+        <div class="field full">
+          <label>توضیحات</label>
+          <textarea rows="3" formControlName="description"
+                    placeholder="توضیحات محصول..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>واریانت‌ها (سایز / رنگ)</h2>
+        <button type="button" class="btn-add" (click)="addVariant()">
+          + افزودن واریانت
+        </button>
+      </div>
+
+      <div formArrayName="variants">
+        @for (g of variants.controls; track g; let i = $index) {   <!-- ⬅️ اینجا -->
+          <div class="v-row" [formGroupName]="i">
+            <div class="v-num">{{ i + 1 }}</div>
+
+            <div class="field">
+              <label>سایز *</label>
+              <input formControlName="size" placeholder="M / L / 42" />
+            </div>
+
+            <div class="field">
+              <label>رنگ *</label>
+              <input formControlName="color" placeholder="مشکی / آبی" />
+            </div>
+
+            <div class="field">
+              <label>موجودی *</label>
+              <input type="number" formControlName="stockQuantity" min="0" />
+            </div>
+
+            <div class="field">
+              <label>قیمت (اختیاری)</label>
+              <input type="number" formControlName="price" placeholder="خالی = قیمت پایه" />
+            </div>
+
+            <div class="field">
+              <label>SKU</label>
+              <input formControlName="sku" dir="ltr" placeholder="TS-BLK-M" />
+            </div>
+
+            <button type="button" class="btn-x" (click)="removeVariant(i)"
+                    [disabled]="variants.length === 1" title="حذف">✕</button>
+          </div>
+        }
+      </div>
+    </section>
+
+    @if (error()) {
+      <div class="alert err">{{ error() }}</div>
+    }
+    @if (ok()) {
+      <div class="alert ok">{{ ok() }}</div>
+    }
+
+    <div class="actions">
+      <button type="submit" class="btn-primary" [disabled]="saving()">
+        {{ saving() ? 'در حال ذخیره...' : 'ذخیره محصول' }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,33 @@
+<div class="auth-wrapper">
+  <form class="auth-card" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <h2>ورود به فروشگاه</h2>
+
+    @if (errorMsg()) {
+      <div class="alert-error">{{ errorMsg() }}</div>
+    }
+
+    <div class="form-group">
+      <label for="username">نام کاربری</label>
+      <input id="username" type="text" formControlName="username" autocomplete="username" />
+      @if (f.username.touched && f.username.invalid) {
+        <small class="err">نام کاربری الزامی و حداقل ۳ کاراکتر است</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="password">رمز عبور</label>
+      <input id="password" type="password" formControlName="password" autocomplete="current-password" />
+      @if (f.password.touched && f.password.invalid) {
+        <small class="err">رمز عبور الزامی و حداقل ۶ کاراکتر است</small>
+      }
+    </div>
+
+    <button type="submit" [disabled]="loading()">
+      {{ loading() ? 'در حال ورود...' : 'ورود' }}
+    </button>
+
+    <p class="switch">
+      حساب نداری؟ <a routerLink="/register">ثبت‌نام کن</a>
+    </p>
+  </form>
+</div>
