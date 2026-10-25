@@ -1,0 +1,28 @@
+<header class="main-header">
+  <div class="header-inner" dir="rtl">
+    <a routerLink="/" class="logo">🛍️ فروشگاه پوشاک</a>
+
+    <nav class="nav">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">خانه</a>
+      <a routerLink="/products" routerLinkActive="active">محصولات</a>
+      <a routerLink="/categories" routerLinkActive="active">دسته‌بندی‌ها</a>
+    </nav>
+
+    <!-- ⚙️ پنل مدیریت -->
+    <a routerLink="/admin"
+       class="admin-btn"
+       title="پنل مدیریت"
+       aria-label="پنل مدیریت">
+      ⚙️
+    </a>
+
+    <a routerLink="/cart" class="cart-btn relative">
+      🛒 سبد خرید
+      @if (cart.count() > 0) {
+        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+          {{ cart.count() }}
+        </span>
+      }
+    </a>
+  </div>
+</header>

@@ -1,0 +1,273 @@
+<div class="max-w-6xl mx-auto px-4 py-8" dir="rtl">
+
+  @if (loading()) {
+    <p class="text-center text-gray-500 py-16">
+      در حال بارگذاری...
+    </p>
+  }
+
+  @if (!loading()) {
+    @if (product(); as p) {
+
+      <a
+        routerLink="/products"
+        class="text-sm text-gray-500 hover:text-black transition">
+        ← بازگشت به محصولات
+      </a>
+
+      <div class="grid md:grid-cols-2 gap-8 mt-4">
+
+        <!-- گالری تصاویر -->
+        <div>
+
+          <!-- تصویر اصلی -->
+          <div
+            class="relative aspect-square bg-gray-100 rounded-xl overflow-hidden cursor-zoom-in"
+            (mouseenter)="hoverZoom.set(true)"
+            (mouseleave)="hoverZoom.set(false)"
+            (mousemove)="onMove($event)"
+            (click)="openZoom()">
+
+            <img
+              [src]="images()[selectedIndex()].url || p.imageUrl || 'assets/images/placeholder.jpg'"
+              [alt]="p.name"
+              class="w-full h-full object-cover transition-transform duration-200"
+              [style.transform]="hoverZoom() ? 'scale(2)' : 'scale(1)'"
+              [style.transform-origin]="zoomOrigin()"
+            />
+
+            <!-- تصویر قبلی و بعدی -->
+            @if (images().length > 1) {
+              <button
+                type="button"
+                (click)="prev(); $event.stopPropagation()"
+                aria-label="تصویر قبلی"
+                class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full w-9 h-9 shadow transition">
+                ›
+              </button>
+
+              <button
+                type="button"
+                (click)="next(); $event.stopPropagation()"
+                aria-label="تصویر بعدی"
+                class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full w-9 h-9 shadow transition">
+                ‹
+              </button>
+            }
+
+            <!-- راهنمای بزرگ‌نمایی -->
+            <span
+              class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+              🔍 برای بزرگ‌نمایی کلیک کنید
+            </span>
+
+          </div>
+
+          <!-- تصاویر بندانگشتی -->
+          @if (images().length > 0) {
+            <div class="flex gap-2 mt-3 overflow-x-auto pb-2">
+
+              @for (img of images(); track $index) {
+                <button
+                  type="button"
+                  (click)="select($index)"
+                  [attr.aria-label]="'انتخاب تصویر ' + ($index + 1) + (img.color ? '، رنگ ' + img.color : '')"
+                  class="w-20 h-20 shrink-0 rounded-lg overflow-hidden border-2 transition"
+                  [class.border-black]="selectedIndex() === $index"
+                  [class.border-transparent]="selectedIndex() !== $index">
+
+                  <img
+                    [src]="img.url"
+                    [alt]="img.color || p.name"
+                    loading="lazy"
+                    class="w-full h-full object-cover"
+                  />
+
+                </button>
+              }
+
+            </div>
+          }
+
+          <!-- رنگ مربوط به تصویر انتخاب‌شده -->
+          @if (images().length > 0 && images()[selectedIndex()].color) {
+            <p class="text-sm text-gray-500 mt-2">
+              رنگ تصویر:
+              <span class="font-medium text-gray-800">
+                {{ images()[selectedIndex()].color }}
+              </span>
+            </p>
+          }
+
+        </div>
+
+        <!-- اطلاعات محصول -->
+        <div>
+
+          <p class="text-sm text-gray-400">
+            {{ p.categoryName }}
+          </p>
+
+          <h1 class="text-2xl font-bold text-gray-900 mt-1">
+            {{ p.name }}
+          </h1>
+
+          <!-- قیمت -->
+          <p class="text-xl font-bold mt-4">
+            {{ (selectedVariant()?.price ?? p.basePrice) | number }}
+            <span class="text-sm font-normal">تومان</span>
+          </p>
+
+          <!-- توضیحات -->
+          <p class="text-gray-600 mt-4 leading-7">
+            {{ p.description }}
+          </p>
+
+          <!-- انتخاب سایز -->
+          @if (sizes().length > 0) {
+            <div class="mt-6">
+
+              <p class="text-sm font-medium mb-2">
+                سایز
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+
+                @for (s of sizes(); track s) {
+                  <button
+                    type="button"
+                    (click)="selectedSize.set(s)"
+                    class="min-w-12 px-3 py-2 border rounded-lg text-sm transition"
+                    [class.bg-black]="selectedSize() === s"
+                    [class.text-white]="selectedSize() === s"
+                    [class.border-black]="selectedSize() === s"
+                    [class.border-gray-300]="selectedSize() !== s">
+
+                    {{ s }}
+
+                  </button>
+                }
+
+              </div>
+            </div>
+          }
+
+          <!-- انتخاب رنگ -->
+          @if (colors().length > 0) {
+            <div class="mt-5">
+
+              <p class="text-sm font-medium mb-2">
+                رنگ
+              </p>
+
+              <div class="flex flex-wrap gap-2">
+
+                @for (c of colors(); track c) {
+                  <button
+                    type="button"
+                    (click)="selectedColor.set(c)"
+                    class="px-3 py-2 border rounded-lg text-sm transition"
+                    [class.bg-black]="selectedColor() === c"
+                    [class.text-white]="selectedColor() === c"
+                    [class.border-black]="selectedColor() === c"
+                    [class.border-gray-300]="selectedColor() !== c">
+
+                    {{ c }}
+
+                  </button>
+                }
+
+              </div>
+            </div>
+          }
+
+          <!-- وضعیت موجودی -->
+          @if (selectedVariant(); as v) {
+            <p
+              class="text-sm mt-4"
+              [class.text-green-600]="v.stockQuantity > 0"
+              [class.text-red-500]="v.stockQuantity === 0">
+
+              {{ v.stockQuantity > 0
+              ? 'موجود (' + v.stockQuantity + ' عدد)'
+              : 'ناموجود' }}
+
+            </p>
+          }
+
+          <!-- افزودن به سبد خرید -->
+          <button
+            type="button"
+            (click)="addToCart()"
+            class="mt-6 w-full bg-black text-white rounded-lg py-3 hover:bg-gray-800 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            [disabled]="selectedVariant() ? selectedVariant()!.stockQuantity === 0 : false">
+
+            افزودن به سبد خرید
+
+          </button>
+
+        </div>
+
+      </div>
+
+    } @else {
+
+      <p class="text-center text-gray-500 py-16">
+        محصول یافت نشد.
+      </p>
+
+    }
+  }
+
+  <!-- لایت‌باکس بزرگ‌نمایی تمام‌صفحه -->
+  @if (zoomOpen()) {
+    <div
+      class="fixed inset-0 z-50 bg-black/90 flex flex-col"
+      (click)="closeZoom()">
+
+      <!-- کنترل‌های بزرگ‌نمایی -->
+      <div
+        class="flex justify-center gap-2 p-3"
+        (click)="$event.stopPropagation()">
+
+        <button
+          type="button"
+          (click)="zoomIn()"
+          class="bg-white hover:bg-gray-200 rounded px-4 py-1 text-lg">
+          +
+        </button>
+
+        <button
+          type="button"
+          (click)="zoomOut()"
+          class="bg-white hover:bg-gray-200 rounded px-4 py-1 text-lg">
+          −
+        </button>
+
+        <button
+          type="button"
+          (click)="closeZoom()"
+          class="bg-white hover:bg-gray-200 rounded px-4 py-1">
+          بستن ✕
+        </button>
+
+      </div>
+
+      <!-- تصویر بزرگ -->
+      <div
+        class="flex-1 overflow-auto flex items-center justify-center p-4"
+        (click)="$event.stopPropagation()">
+
+        <img
+          [src]="images()[selectedIndex()].url || product()?.imageUrl || 'assets/images/placeholder.jpg'"
+          [alt]="product()?.name || ''"
+          class="max-h-full max-w-full object-contain transition-transform duration-200"
+          [style.transform]="'scale(' + zoomLevel() + ')'"
+        />
+
+      </div>
+
+    </div>
+  }
+
+</div>

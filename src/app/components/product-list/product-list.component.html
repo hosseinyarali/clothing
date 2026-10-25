@@ -1,0 +1,41 @@
+<div class="max-w-7xl mx-auto px-4 py-8" dir="rtl">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">محصولات فروشگاه</h2>
+
+  @if (loading()) {
+    <p class="text-center text-gray-500 py-16">در حال بارگذاری...</p>
+  } @else if (products().length === 0) {
+    <p class="text-center text-gray-500 py-16">هیچ محصولی وجود ندارد.</p>
+  } @else {
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      @for (p of products(); track p.id) {
+        <a [routerLink]="['/products', p.id]"
+           class="group bg-white rounded-xl shadow-sm hover:shadow-md transition overflow-hidden flex flex-col cursor-pointer">
+
+          <!-- تصویر -->
+          <div class="aspect-square bg-gray-100 overflow-hidden">
+            <img [src]="p.imageUrl || 'assets/images/placeholder.jpg'"
+                 [alt]="p.name"
+                 loading="lazy"
+                 class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+          </div>
+
+          <!-- اطلاعات -->
+          <div class="p-3 flex flex-col flex-1">
+            <h3 class="text-sm font-medium text-gray-800">{{ p.name }}</h3>
+            <p class="text-xs text-gray-400 mt-1">{{ p.categoryName }}</p>
+            <p class="font-bold text-gray-900 mt-2">
+              {{ p.basePrice | number }} <span class="text-xs font-normal">تومان</span>
+            </p>
+
+            <!-- دکمه ظاهری (کل کارت کلیک‌پذیر است) -->
+            <span class="mt-auto pt-3">
+              <span class="block text-center bg-black text-white rounded-lg py-2 text-sm group-hover:bg-gray-800 transition">
+                مشاهده جزئیات
+              </span>
+            </span>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>
