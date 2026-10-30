@@ -1,33 +1,97 @@
-<div class="admin-page" dir="rtl">
-  <header class="admin-head">
-    <h1>پنل مدیریت</h1>
-    <a routerLink="/" class="btn-ghost">← بازگشت به فروشگاه</a>
-  </header>
+<div class="admin" dir="rtl">
 
-  <div class="admin-grid">
-    <a routerLink="/admin/products/new" class="admin-card">
-      <div class="card-icon">+</div>
-      <h2>افزودن محصول</h2>
-      <p>ایجاد محصول جدید با واریانت‌های سایز و رنگ</p>
-    </a>
+  <!-- ==================== منوی کناری ==================== -->
+  <aside class="side">
+    <div class="side-top">
+      <span class="side-logo">⚙️</span>
+      <div>
+        <strong>پنل مدیریت</strong>
+        <small>فروشگاه پوشاک</small>
+      </div>
+    </div>
 
-    <!-- بعداً این‌ها رو فعال می‌کنیم -->
-    <a routerLink="/admin/products" class="admin-card">
-      <div class="card-icon">📦</div>
-      <h2>لیست محصولات</h2>
-      <p>مشاهده، ویرایش و حذف محصولات</p>
-    </a>
+    <nav class="side-nav">
+      @for (g of navGroups; track g.title) {
+        <p class="group-title">{{ g.title }}</p>
 
-    <a routerLink="/admin/orders" class="admin-card">
-      <div class="card-icon">🛒</div>
-      <h2>سفارش‌ها</h2>
-      <p>مشاهده و مدیریت وضعیت سفارش‌ها</p>
-    </a>
+        @for (item of g.items; track item.label) {
+          @if (item.soon) {
+            <span class="nav-item disabled" title="به‌زودی فعال می‌شه">
+              <span class="nav-icon">{{ item.icon }}</span>
+              <span class="nav-label">{{ item.label }}</span>
+              <span class="soon-badge">به‌زودی</span>
+            </span>
+          } @else {
+            <a [routerLink]="item.link"
+               routerLinkActive="active"
+               [routerLinkActiveOptions]="{ exact: !!item.exact }"
+               class="nav-item">
+              <span class="nav-icon">{{ item.icon }}</span>
+              <span class="nav-label">{{ item.label }}</span>
+            </a>
+          }
+        }
+      }
+    </nav>
 
-    <a routerLink="/admin/categories" class="admin-card">
-      <div class="card-icon">🏷️</div>
-      <h2>دسته‌بندی‌ها</h2>
-      <p>افزودن، ویرایش و حذف دسته‌بندی‌ها</p>
-    </a>
-  </div>
+    <a routerLink="/" class="back">← بازگشت به فروشگاه</a>
+  </aside>
+
+  <!-- ==================== محتوا ==================== -->
+  <main class="main">
+
+    <header class="head">
+      <div>
+        <h1>داشبورد</h1>
+        <p class="muted">از اینجا فروشگاهت رو مدیریت کن</p>
+      </div>
+      <a routerLink="/admin/products/new" class="btn">+ افزودن محصول</a>
+    </header>
+
+    <!-- آمار -->
+    <section class="stats">
+      @for (s of stats(); track s.label; let i = $index) {
+        <div class="stat" [style.--i]="i">
+          <span class="stat-icon">{{ s.icon }}</span>
+          <div>
+            <p class="stat-value">{{ s.value ?? '—' }}</p>
+            <p class="stat-label">{{ s.label }}</p>
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- دسترسی سریع -->
+    <section class="block">
+      <h2>دسترسی سریع</h2>
+      <div class="cards">
+        @for (a of quickActions; track a.title; let i = $index) {
+          <a [routerLink]="a.link" class="card" [style.--i]="i + 4">
+            <span class="card-icon">{{ a.icon }}</span>
+            <h3>{{ a.title }}</h3>
+            <p>{{ a.desc }}</p>
+            <span class="arrow">←</span>
+          </a>
+        }
+      </div>
+    </section>
+
+    <!-- قابلیت‌های آینده -->
+    <section class="block">
+      <div class="block-head">
+        <h2>قابلیت‌های در راه</h2>
+        <span class="chip">در حال توسعه</span>
+      </div>
+      <div class="cards">
+        @for (f of soonFeatures; track f.title; let i = $index) {
+          <div class="card soon" [style.--i]="i + 8">
+            <span class="card-icon">{{ f.icon }}</span>
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.desc }}</p>
+          </div>
+        }
+      </div>
+    </section>
+
+  </main>
 </div>

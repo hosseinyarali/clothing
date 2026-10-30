@@ -2,70 +2,57 @@
 
   <!-- هدر -->
   <div class="page-head">
-    <div>
-      <h1>دسته‌بندی‌ها</h1>
-      <p class="muted">مدیریت دسته‌بندی محصولات</p>
-    </div>
-
-    <a routerLink="/categories/new" class="btn-primary">+ دسته‌بندی جدید</a>
+    <h1>دسته‌بندی‌ها</h1>
+    <p class="muted">یه دسته رو انتخاب کن و محصولاتش رو ببین</p>
   </div>
 
   <!-- خطا -->
   @if (error()) {
-    <div class="alert">{{ error() }}</div>
+    <div class="alert" role="alert">{{ error() }}</div>
   }
 
   <!-- محتوا -->
   @if (loading()) {
     <div class="grid">
       @for (i of [1,2,3,4,5,6]; track i) {
-        <div class="skeleton">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-line w-70"></div>
-          <div class="skeleton-line w-40"></div>
-        </div>
+        <div class="skeleton"></div>
       }
     </div>
   } @else if (categories().length === 0) {
     <div class="empty">
-      <div class="empty-icon">📁</div>
-      <p>هنوز دسته‌بندی‌ای ثبت نشده.</p>
-      <a routerLink="/categories/new" class="btn-primary">افزودن اولین دسته‌بندی</a>
+      <div class="empty-icon">🛍️</div>
+      <p>فعلاً دسته‌بندی‌ای وجود نداره.</p>
+      <a routerLink="/products" class="btn">مشاهده همه محصولات</a>
     </div>
   } @else {
     <div class="grid">
-      @for (c of categories(); track c.id) {
-        <div class="card">
+      @for (c of categories(); track c.id; let i = $index) {
+        <a [routerLink]="['/products']"
+           [queryParams]="{ categoryId: c.id }"
+           class="card"
+           [style.--i]="i">
 
-          <!-- تصویر -->
-          <div class="card-img">
-            @if (c.imageUrl) {
-              <img [src]="c.imageUrl" [alt]="c.name" loading="lazy" />
-            } @else {
-              <div class="img-placeholder">👕</div>
-            }
-          </div>
+          @if (c.imageUrl) {
+            <img [src]="c.imageUrl" [alt]="c.name" loading="lazy" />
+          } @else {
+            <div class="img-placeholder">👕</div>
+          }
 
-          <!-- متن -->
-          <div class="card-body">
+          <div class="shade"></div>
+
+          <div class="card-text">
             <h3>{{ c.name }}</h3>
-            <p class="desc">{{ c.description || 'بدون توضیحات' }}</p>
-          </div>
-
-          <!-- اکشن‌ها -->
-          <div class="card-actions">
-            @if (deletingId() === c.id) {
-              <span class="confirm-text">مطمئنی؟</span>
-              <button type="button" class="btn-danger" (click)="deleteCategory(c.id)">حذف</button>
-              <button type="button" class="btn-ghost" (click)="cancelDelete()">انصراف</button>
-            } @else {
-              <a [routerLink]="['/categories', c.id, 'edit']" class="btn-ghost">ویرایش</a>
-              <button type="button" class="btn-ghost danger" (click)="confirmDelete(c.id)">حذف</button>
+            @if (c.description) {
+              <p class="desc">{{ c.description }}</p>
             }
+            <span class="go">مشاهده محصولات</span>
           </div>
-
-        </div>
+        </a>
       }
+    </div>
+
+    <div class="all">
+      <a routerLink="/products" class="btn ghost">مشاهده همه محصولات</a>
     </div>
   }
 

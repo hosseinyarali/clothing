@@ -1,48 +1,75 @@
-<div class="max-w-6xl mx-auto px-4 py-8" dir="rtl">
+<div class="max-w-6xl mx-auto px-4 pt-6 pb-28 md:pb-12" dir="rtl">
 
   @if (loading()) {
-    <p class="text-center text-gray-500 py-16">
-      در حال بارگذاری...
-    </p>
-  }
 
-  @if (!loading()) {
+    <!-- اسکلت بارگذاری -->
+    <div class="grid md:grid-cols-2 gap-8 animate-pulse">
+      <div>
+        <div class="aspect-square bg-gray-200 rounded-2xl"></div>
+        <div class="flex gap-2 mt-3">
+          @for (i of [1,2,3,4]; track i) {
+            <div class="w-20 h-20 bg-gray-200 rounded-xl"></div>
+          }
+        </div>
+      </div>
+      <div class="space-y-4">
+        <div class="h-3 w-24 bg-gray-200 rounded"></div>
+        <div class="h-7 w-3/4 bg-gray-200 rounded"></div>
+        <div class="h-7 w-40 bg-gray-200 rounded"></div>
+        <div class="h-20 bg-gray-200 rounded-xl"></div>
+        <div class="h-12 bg-gray-200 rounded-xl"></div>
+      </div>
+    </div>
+
+  } @else {
+
     @if (product(); as p) {
 
-      <a
-        routerLink="/products"
-        class="text-sm text-gray-500 hover:text-black transition">
-        ← بازگشت به محصولات
-      </a>
+      <!-- مسیر صفحه -->
+      <nav class="flex items-center gap-2 text-xs text-gray-500 mb-5 flex-wrap" aria-label="مسیر صفحه">
+        <a routerLink="/" class="hover:text-blue-600 transition">خانه</a>
+        <span class="text-gray-300">/</span>
+        <a routerLink="/products" class="hover:text-blue-600 transition">محصولات</a>
+        @if (p.categoryName) {
+          <span class="text-gray-300">/</span>
+          <span>{{ p.categoryName }}</span>
+        }
+        <span class="text-gray-300">/</span>
+        <span class="text-gray-800 font-medium">{{ p.name }}</span>
+      </nav>
 
-      <div class="grid md:grid-cols-2 gap-8 mt-4">
+      <div class="fade-up grid md:grid-cols-2 gap-8 lg:gap-12">
 
-        <!-- گالری تصاویر -->
+        <!-- ==================== گالری تصاویر ==================== -->
         <div>
 
           <!-- تصویر اصلی -->
           <div
-            class="relative aspect-square bg-gray-100 rounded-xl overflow-hidden cursor-zoom-in"
+            class="relative aspect-square bg-gray-100 rounded-2xl overflow-hidden cursor-zoom-in border border-gray-100"
             (mouseenter)="hoverZoom.set(true)"
             (mouseleave)="hoverZoom.set(false)"
             (mousemove)="onMove($event)"
             (click)="openZoom()">
 
             <img
-              [src]="images()[selectedIndex()].url || p.imageUrl || 'assets/images/placeholder.jpg'"
+              [src]="images()[selectedIndex()]?.url || p.imageUrl || 'assets/images/placeholder.jpg'"
               [alt]="p.name"
               class="w-full h-full object-cover transition-transform duration-200"
               [style.transform]="hoverZoom() ? 'scale(2)' : 'scale(1)'"
               [style.transform-origin]="zoomOrigin()"
             />
 
-            <!-- تصویر قبلی و بعدی -->
+            <!-- شمارنده تصاویر -->
             @if (images().length > 1) {
+              <span class="absolute top-3 right-3 bg-white/90 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full shadow-sm">
+                {{ selectedIndex() + 1 }} / {{ images().length }}
+              </span>
+
               <button
                 type="button"
                 (click)="prev(); $event.stopPropagation()"
                 aria-label="تصویر قبلی"
-                class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full w-9 h-9 shadow transition">
+                class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-700 rounded-full w-9 h-9 shadow-md transition hover:scale-105">
                 ›
               </button>
 
@@ -50,21 +77,20 @@
                 type="button"
                 (click)="next(); $event.stopPropagation()"
                 aria-label="تصویر بعدی"
-                class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full w-9 h-9 shadow transition">
+                class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-700 rounded-full w-9 h-9 shadow-md transition hover:scale-105">
                 ‹
               </button>
             }
 
             <!-- راهنمای بزرگ‌نمایی -->
-            <span
-              class="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
-              🔍 برای بزرگ‌نمایی کلیک کنید
+            <span class="absolute bottom-3 left-3 bg-black/60 backdrop-blur text-white text-xs px-3 py-1.5 rounded-full">
+              🔍 کلیک برای بزرگ‌نمایی
             </span>
 
           </div>
 
           <!-- تصاویر بندانگشتی -->
-          @if (images().length > 0) {
+          @if (images().length > 1) {
             <div class="flex gap-2 mt-3 overflow-x-auto pb-2">
 
               @for (img of images(); track $index) {
@@ -72,9 +98,12 @@
                   type="button"
                   (click)="select($index)"
                   [attr.aria-label]="'انتخاب تصویر ' + ($index + 1) + (img.color ? '، رنگ ' + img.color : '')"
-                  class="w-20 h-20 shrink-0 rounded-lg overflow-hidden border-2 transition"
-                  [class.border-black]="selectedIndex() === $index"
-                  [class.border-transparent]="selectedIndex() !== $index">
+                  class="w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-xl overflow-hidden border-2 transition hover:opacity-100"
+                  [class.border-blue-600]="selectedIndex() === $index"
+                  [class.ring-2]="selectedIndex() === $index"
+                  [class.ring-blue-100]="selectedIndex() === $index"
+                  [class.border-transparent]="selectedIndex() !== $index"
+                  [class.opacity-60]="selectedIndex() !== $index">
 
                   <img
                     [src]="img.url"
@@ -90,45 +119,52 @@
           }
 
           <!-- رنگ مربوط به تصویر انتخاب‌شده -->
-          @if (images().length > 0 && images()[selectedIndex()].color) {
-            <p class="text-sm text-gray-500 mt-2">
+          @if (images().length > 0 && images()[selectedIndex()]?.color) {
+            <p class="text-xs text-gray-500 mt-1">
               رنگ تصویر:
-              <span class="font-medium text-gray-800">
-                {{ images()[selectedIndex()].color }}
-              </span>
+              <span class="font-medium text-gray-800">{{ images()[selectedIndex()].color }}</span>
             </p>
           }
 
         </div>
 
-        <!-- اطلاعات محصول -->
-        <div>
+        <!-- ==================== اطلاعات محصول ==================== -->
+        <div class="fade-up md:sticky md:top-20 self-start" style="animation-delay: .08s">
 
-          <p class="text-sm text-gray-400">
-            {{ p.categoryName }}
-          </p>
+          @if (p.categoryName) {
+            <span class="inline-block text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              {{ p.categoryName }}
+            </span>
+          }
 
-          <h1 class="text-2xl font-bold text-gray-900 mt-1">
+          <h1 class="text-xl md:text-2xl font-extrabold text-gray-900 mt-3 leading-relaxed">
             {{ p.name }}
           </h1>
 
           <!-- قیمت -->
-          <p class="text-xl font-bold mt-4">
-            {{ (selectedVariant()?.price ?? p.basePrice) | number }}
-            <span class="text-sm font-normal">تومان</span>
-          </p>
+          <div class="flex items-baseline gap-2 mt-4 pb-5 border-b border-gray-100">
+            <span class="text-2xl font-extrabold text-gray-900">
+              {{ (selectedVariant()?.price ?? p.basePrice) | number }}
+            </span>
+            <span class="text-sm text-gray-500">تومان</span>
+          </div>
 
           <!-- توضیحات -->
-          <p class="text-gray-600 mt-4 leading-7">
-            {{ p.description }}
-          </p>
+          @if (p.description) {
+            <p class="text-sm text-gray-600 mt-5 leading-8">
+              {{ p.description }}
+            </p>
+          }
 
           <!-- انتخاب سایز -->
           @if (sizes().length > 0) {
             <div class="mt-6">
 
-              <p class="text-sm font-medium mb-2">
+              <p class="text-sm font-semibold text-gray-800 mb-2">
                 سایز
+                @if (selectedSize()) {
+                  <span class="font-normal text-gray-500">: {{ selectedSize() }}</span>
+                }
               </p>
 
               <div class="flex flex-wrap gap-2">
@@ -137,11 +173,12 @@
                   <button
                     type="button"
                     (click)="selectedSize.set(s)"
-                    class="min-w-12 px-3 py-2 border rounded-lg text-sm transition"
-                    [class.bg-black]="selectedSize() === s"
-                    [class.text-white]="selectedSize() === s"
-                    [class.border-black]="selectedSize() === s"
-                    [class.border-gray-300]="selectedSize() !== s">
+                    class="min-w-12 px-3 py-2 border rounded-xl text-sm transition hover:border-blue-400"
+                    [class.bg-blue-50]="selectedSize() === s"
+                    [class.text-blue-700]="selectedSize() === s"
+                    [class.border-blue-600]="selectedSize() === s"
+                    [class.font-bold]="selectedSize() === s"
+                    [class.border-gray-200]="selectedSize() !== s">
 
                     {{ s }}
 
@@ -156,8 +193,11 @@
           @if (colors().length > 0) {
             <div class="mt-5">
 
-              <p class="text-sm font-medium mb-2">
+              <p class="text-sm font-semibold text-gray-800 mb-2">
                 رنگ
+                @if (selectedColor()) {
+                  <span class="font-normal text-gray-500">: {{ selectedColor() }}</span>
+                }
               </p>
 
               <div class="flex flex-wrap gap-2">
@@ -166,11 +206,12 @@
                   <button
                     type="button"
                     (click)="selectedColor.set(c)"
-                    class="px-3 py-2 border rounded-lg text-sm transition"
-                    [class.bg-black]="selectedColor() === c"
-                    [class.text-white]="selectedColor() === c"
-                    [class.border-black]="selectedColor() === c"
-                    [class.border-gray-300]="selectedColor() !== c">
+                    class="px-4 py-2 border rounded-xl text-sm transition hover:border-blue-400"
+                    [class.bg-blue-50]="selectedColor() === c"
+                    [class.text-blue-700]="selectedColor() === c"
+                    [class.border-blue-600]="selectedColor() === c"
+                    [class.font-bold]="selectedColor() === c"
+                    [class.border-gray-200]="selectedColor() !== c">
 
                     {{ c }}
 
@@ -183,90 +224,160 @@
 
           <!-- وضعیت موجودی -->
           @if (selectedVariant(); as v) {
-            <p
-              class="text-sm mt-4"
-              [class.text-green-600]="v.stockQuantity > 0"
-              [class.text-red-500]="v.stockQuantity === 0">
-
-              {{ v.stockQuantity > 0
-              ? 'موجود (' + v.stockQuantity + ' عدد)'
-              : 'ناموجود' }}
-
-            </p>
+            <div class="mt-5">
+              @if (v.stockQuantity === 0) {
+                <span class="inline-flex items-center gap-2 text-xs font-medium text-red-600 bg-red-50 px-3 py-1.5 rounded-full">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                  ناموجود
+                </span>
+              } @else if (v.stockQuantity <= 5) {
+                <span class="inline-flex items-center gap-2 text-xs font-medium text-orange-600 bg-orange-50 px-3 py-1.5 rounded-full">
+                  <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                  تنها {{ v.stockQuantity }} عدد باقی مانده
+                </span>
+              } @else {
+                <span class="inline-flex items-center gap-2 text-xs font-medium text-green-700 bg-green-50 px-3 py-1.5 rounded-full">
+                  <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                  موجود در انبار
+                </span>
+              }
+            </div>
           }
 
-          <!-- افزودن به سبد خرید -->
+          <!-- افزودن به سبد خرید (دسکتاپ) -->
           <button
             type="button"
             (click)="addToCart()"
-            class="mt-6 w-full bg-black text-white rounded-lg py-3 hover:bg-gray-800 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            class="hidden md:block mt-6 w-full bg-blue-600 text-white font-semibold rounded-xl py-3.5 hover:bg-blue-700 active:scale-[.99] transition disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
             [disabled]="selectedVariant() ? selectedVariant()!.stockQuantity === 0 : false">
 
             افزودن به سبد خرید
 
           </button>
 
+          <!-- مزایا -->
+          <div class="grid grid-cols-3 gap-2 mt-5">
+            <div class="text-center bg-gray-50 rounded-xl py-3 px-1">
+              <p class="text-lg">🚚</p>
+              <p class="text-xs text-gray-600 mt-1">ارسال سریع</p>
+            </div>
+            <div class="text-center bg-gray-50 rounded-xl py-3 px-1">
+              <p class="text-lg">✅</p>
+              <p class="text-xs text-gray-600 mt-1">ضمانت اصالت</p>
+            </div>
+            <div class="text-center bg-gray-50 rounded-xl py-3 px-1">
+              <p class="text-lg">🔄</p>
+              <p class="text-xs text-gray-600 mt-1">بازگشت ۷ روزه</p>
+            </div>
+          </div>
+
         </div>
 
       </div>
 
+      <!-- نوار خرید ثابت (موبایل) -->
+      <div class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200 px-4 py-3 flex items-center gap-3 shadow-[0_-4px_16px_rgba(0,0,0,.06)]">
+        <div class="shrink-0">
+          <p class="text-xs text-gray-500">قیمت</p>
+          <p class="text-sm font-extrabold text-gray-900">
+            {{ (selectedVariant()?.price ?? p.basePrice) | number }}
+            <span class="text-xs font-normal text-gray-500">تومان</span>
+          </p>
+        </div>
+        <button
+          type="button"
+          (click)="addToCart()"
+          class="flex-1 bg-blue-600 text-white font-semibold rounded-xl py-3 active:scale-[.99] transition disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+          [disabled]="selectedVariant() ? selectedVariant()!.stockQuantity === 0 : false">
+          افزودن به سبد خرید
+        </button>
+      </div>
+
     } @else {
 
-      <p class="text-center text-gray-500 py-16">
-        محصول یافت نشد.
-      </p>
+      <!-- محصول پیدا نشد -->
+      <div class="text-center py-20">
+        <p class="text-5xl mb-3">🔎</p>
+        <p class="text-gray-700 font-semibold">محصول یافت نشد.</p>
+        <p class="text-sm text-gray-500 mt-1">ممکنه این محصول حذف شده یا آدرس اشتباه باشه.</p>
+        <a routerLink="/products"
+           class="inline-block mt-5 bg-blue-600 text-white text-sm font-semibold rounded-xl px-6 py-2.5 hover:bg-blue-700 transition">
+          بازگشت به محصولات
+        </a>
+      </div>
 
     }
   }
 
-  <!-- لایت‌باکس بزرگ‌نمایی تمام‌صفحه -->
+  <!-- ==================== لایت‌باکس بزرگ‌نمایی ==================== -->
   @if (zoomOpen()) {
     <div
       class="fixed inset-0 z-50 bg-black/90 flex flex-col"
       (click)="closeZoom()">
 
-      <!-- کنترل‌های بزرگ‌نمایی -->
+      <!-- کنترل‌ها -->
       <div
-        class="flex justify-center gap-2 p-3"
+        class="flex items-center justify-center gap-2 p-3"
         (click)="$event.stopPropagation()">
 
         <button
           type="button"
+          (click)="zoomOut()"
+          aria-label="کوچک‌نمایی"
+          class="bg-white/10 hover:bg-white/20 text-white rounded-lg w-10 h-10 text-xl transition">
+          −
+        </button>
+
+        <span class="text-white text-sm w-14 text-center tabular-nums">
+          {{ zoomLevel() * 100 | number:'1.0-0' }}٪
+        </span>
+
+        <button
+          type="button"
           (click)="zoomIn()"
-          class="bg-white hover:bg-gray-200 rounded px-4 py-1 text-lg">
+          aria-label="بزرگ‌نمایی"
+          class="bg-white/10 hover:bg-white/20 text-white rounded-lg w-10 h-10 text-xl transition">
           +
         </button>
 
         <button
           type="button"
-          (click)="zoomOut()"
-          class="bg-white hover:bg-gray-200 rounded px-4 py-1 text-lg">
-          −
-        </button>
-
-        <button
-          type="button"
           (click)="closeZoom()"
-          class="bg-white hover:bg-gray-200 rounded px-4 py-1">
+          class="mr-4 bg-white text-gray-900 hover:bg-gray-200 rounded-lg px-4 h-10 text-sm font-medium transition">
           بستن ✕
         </button>
 
       </div>
 
       <!-- تصویر بزرگ -->
-      <div
-        class="flex-1 overflow-auto flex items-center justify-center p-4"
-        (click)="$event.stopPropagation()">
+      <div class="relative flex-1 overflow-auto flex items-center justify-center p-4">
 
         <img
-          [src]="images()[selectedIndex()].url || product()?.imageUrl || 'assets/images/placeholder.jpg'"
+          [src]="images()[selectedIndex()]?.url || product()?.imageUrl || 'assets/images/placeholder.jpg'"
           [alt]="product()?.name || ''"
+          (click)="$event.stopPropagation()"
           class="max-h-full max-w-full object-contain transition-transform duration-200"
           [style.transform]="'scale(' + zoomLevel() + ')'"
         />
 
-      </div>
+        @if (images().length > 1) {
+          <button
+            type="button"
+            (click)="prev(); $event.stopPropagation()"
+            aria-label="تصویر قبلی"
+            class="fixed right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white rounded-full w-11 h-11 text-xl transition">
+            ›
+          </button>
+          <button
+            type="button"
+            (click)="next(); $event.stopPropagation()"
+            aria-label="تصویر بعدی"
+            class="fixed left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/25 text-white rounded-full w-11 h-11 text-xl transition">
+            ‹
+          </button>
+        }
 
+      </div>
     </div>
   }
 
